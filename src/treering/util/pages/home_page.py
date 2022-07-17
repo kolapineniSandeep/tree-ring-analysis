@@ -1,6 +1,6 @@
 
 import streamlit as st
-
+import webbrowser
 
 
 
@@ -18,7 +18,9 @@ def home_page():
 
 
     st.sidebar.markdown("## Reference Links")
-
+    url = 'https://www.google.com/'
+    if st.sidebar.button('Test Link'):
+        webbrowser.open_new_tab(url)
 
 
     st.markdown("---")
