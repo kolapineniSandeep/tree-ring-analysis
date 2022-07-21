@@ -2,15 +2,22 @@
 import warnings
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
-
+from PIL import Image
 import streamlit as st
-
+import os
 from util.pages.home_page import home_page
 from util.pages.overview_page import overview_page
 from util.pages.growth_index import growth_index
 from util.pages.geo_location import geo_location
 from util.pages.manage_data import manage_data_page
 
+
+def get_current_dir():
+    return os.getcwd()
+
+
+def get_image_location():
+    return os.path.join(get_current_dir(),"images")
 
 class MultiApp:
     def __init__(self):
@@ -21,7 +28,8 @@ class MultiApp:
 
     def run(self):
 
-        st.set_page_config(page_title="TREE RING ANALYSIS", layout="wide")
+        im = Image.open(os.path.join(get_image_location(),"tab_tree.png"))
+        st.set_page_config(page_title="TREE RING ANALYSIS", page_icon=im,layout="wide")
 
         st.sidebar.markdown("## Main Menu")
         app = st.sidebar.selectbox(

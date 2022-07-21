@@ -2,12 +2,23 @@ import streamlit as st
 import webbrowser
 
 import os
+from PIL import Image
 
 directory = os.getcwd()
 
-def home_page():
-    left_col, right_col = st.columns(2)
+def get_current_dir():
+    return os.getcwd()
 
+
+def get_image_location():
+    return os.path.join(get_current_dir(),"images")
+def home_page():
+
+    im = Image.open(os.path.join(get_image_location(),"cover.jpg"))
+
+
+    left_col, right_col = st.columns(2)
+    left_col.image(im, caption='')
     right_col.markdown("# TREE RING ANALYSIS")
     right_col.markdown("### A tool for analyzing tree growth in canada")
 
