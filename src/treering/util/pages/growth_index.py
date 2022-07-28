@@ -8,8 +8,7 @@ import numpy as np
 from ..scripts.data_pool import my_data
 
 
-
-@st.cache
+@st.cache()
 def get_data():
 
     df = my_data().get_data()
@@ -19,6 +18,7 @@ def get_data():
     df = df.pivot(index='species', columns='year', values='growth_index')
     df = df.replace(np.nan, 0)
     df.columns = df.columns.astype(str)
+
     return df
 
 def growth_index():
@@ -28,7 +28,8 @@ def growth_index():
     st.markdown("#### Summary of the Tree Ring Analysis")
 
     st.markdown("""
-    -NEED TO IMPLEMENT
+     The tree ring analysis database is a collection of 1,633,826 instances spanning over 67 years containing 47 projects and samples from 66
+    species of trees
     """)
     left_info_col, right_info_col = st.columns([3,1])
 
