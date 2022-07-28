@@ -8,8 +8,7 @@ import numpy as np
 from ..scripts.data_pool import my_data
 
 
-
-@st.cache
+@st.cache()
 def get_data():
 
     df = my_data().get_data()
@@ -19,6 +18,7 @@ def get_data():
     df = df.pivot(index='species', columns='year', values='growth_index')
     df = df.replace(np.nan, 0)
     df.columns = df.columns.astype(str)
+
     return df
 
 def growth_index():

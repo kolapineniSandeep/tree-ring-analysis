@@ -1,14 +1,10 @@
 import os
 import glob
 import pandas as pd
-import numpy as np
-import streamlit as st
 
 class my_data:
 
 
-
-    @st.cache
     def get_data(self):
         directory = self.get_dataset_location()
         all_files = glob.glob(directory + "/*.csv")
@@ -21,8 +17,6 @@ class my_data:
                 csv_file = pd.read_csv(filename, index_col=None, header=0)
                 df = pd.concat([df, csv_file], axis=0)
                 f.close()
-
-
 
 
         return df
