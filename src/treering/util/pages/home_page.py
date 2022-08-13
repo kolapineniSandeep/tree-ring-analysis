@@ -38,16 +38,10 @@ def home_page():
 
     st.markdown("---")
 
+
+
+
     st.markdown(
-        """
-        ### Summary
-       
-        """
-    )
-
-    left_col, right_col = st.columns(2)
-
-    left_col.markdown(
         """
         ### Usage
 
@@ -55,8 +49,8 @@ def home_page():
         each page in the TREE RING ANALYSIS:
 
         - **Home Page:** We are here!
-        - **Overview Page:** Provide all insights about data!
-        - **Outlier Page:** compare outliers among spices over the years!
+        - **Overview Page:** Provide all insights about data, like number of trees, and group by spices and sites and many more.
+        - **Outlier Page:** In this page we can compare outliers among spices over the years, using table and box plot
         - **Growth Index By Spices Page:** find growth index of each spices over the years 
         - **Growth Index By Geo Location:** Points the trees in map based on geolocation
         - **Growth Index By year:** Can calculate average progress of growth index early 
