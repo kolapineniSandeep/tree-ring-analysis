@@ -27,6 +27,6 @@ class my_data:
 
 
     def get_dataset_location(self):
-         return os.path.join(self.get_current_dir(), "OpenData")
+         return os.path.join(self.get_current_dir(), "src","treering","OpenData")
 
 
