@@ -55,7 +55,13 @@ def home_page():
         each page in the TREE RING ANALYSIS:
 
         - **Home Page:** We are here!
-        
+        - **Overview Page:** Provide all insights about data!
+        - **Outlier Page:** compare outliers among spices over the years!
+        - **Growth Index By Spices Page:** find growth index of each spices over the years 
+        - **Growth Index By Geo Location:** Points the trees in map based on geolocation
+        - **Growth Index By year:** Can calculate average progress of growth index early 
+        - **Manage dataset :** We can upload and manage new datasets here!
+
 
         """
     )
@@ -66,7 +72,7 @@ def home_page():
     left_info_col.markdown(
         f"""
         ### Team Members 
-        ### Sandeep Kolapineni
+        ### Sandeep Kolapineni C0827402
         ### Samir Mendoza
         ### Tom James
         
@@ -78,18 +84,18 @@ def home_page():
         unsafe_allow_html=True,
     )
 
-    right_info_col.markdown(
-        """
-        ### DATA
-
-       
-         """
-    )
+    with right_info_col:
+        im = Image.open(os.path.join(get_image_location(),"tree_ring_img.jpg"))
+        st.image(im, width=360)
 
     right_info_col.markdown(
         """
-        ### DATA 
-       
+        
+        The aim of this project is to understand tree growth index in canadian forest and also calculate productivity
+       of forest growth in canada. We incorporated with canada forest services and took dataset. The data repository that currently contains
+       tree-ring measurements from 40 206 tree samples from 4594 sites and 62 tree species from all Canadian provinces and territories
+        The out come of the project is to create interactive dash board which provide lot of insights, and identify
+        the trees, spices and ares which are at at greatest risk of forest losses. 
         """
 
     )
