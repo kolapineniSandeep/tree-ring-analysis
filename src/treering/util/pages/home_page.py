@@ -26,16 +26,18 @@ def home_page():
     url_Pandas = 'https://pandas.pydata.org'
     url_Numpy = 'https://numpy.org/doc/stable/'
     url_Matplotlib = 'https://matplotlib.org'
-
-    if st.sidebar.button('Pandas'):
+    url_seaborn='https://seaborn.pydata.org/'
+    col1,col2=st.sidebar.columns(2)
+    if col1.button('Pandas Libreary'):
         webbrowser.open_new_tab(url_Pandas)
 
-    if st.sidebar.button('Numpy'):
+    if col1.button('Numpy'):
         webbrowser.open_new_tab(url_Numpy)
 
-    if st.sidebar.button('Matplotlib'):
+    if col2.button('Matplotlib'):
         webbrowser.open_new_tab(url_Matplotlib)
-
+    if col2.button('seaborn graphs'):
+        webbrowser.open_new_tab(url_seaborn)
     st.markdown("---")
 
 
