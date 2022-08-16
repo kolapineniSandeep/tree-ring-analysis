@@ -85,7 +85,8 @@ def overview_page():
         ).markdown("## YEARS<br/>"+(total_year))
         grid.cell("b", 2, 3, 2, 3).markdown("## TOTAL SITES <br/><h1>"+str(total_sites)+"</h1>")
         grid.cell("c", 3, 4, 2, 3).markdown("## TOTAL SPICES<br/><h1>"+str(total_species)+"</h1>")
-        grid.cell("d", 1, 2, 1, 3).markdown("## TOTAL TREES <br/><h1>"+str(total_trees)+"</h1>")
+        grid.cell("d", 1, 2, 1, 2).markdown("## TOTAL TREES <br/><h1>"+str(total_trees)+"</h1>")
+        grid.cell("f", 1, 2, 2, 3).markdown("## TOTAL INSTANCES <br/><h1>"+str(total_instances)+"</h1>")
 
         grid.cell("e", 3, 4, 1, 2).markdown("## TOTAL CONTRIBUTORS<br/><h1>"+str(total_projects)+"</h1>")
 
