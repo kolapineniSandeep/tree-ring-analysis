@@ -27,13 +27,15 @@ def home_page():
     url_Numpy = 'https://numpy.org/doc/stable/'
     url_Matplotlib = 'https://matplotlib.org'
     url_seaborn='https://seaborn.pydata.org/'
+    url_git='https://github.com/kolapineniSandeep/tree-ring-analysis'
     col1,col2=st.sidebar.columns(2)
     if col1.button('Pandas Libreary'):
         webbrowser.open_new_tab(url_Pandas)
 
     if col1.button('Numpy'):
         webbrowser.open_new_tab(url_Numpy)
-
+    if col1.button('GITHUB'):
+        webbrowser.open_new_tab(url_git)
     if col2.button('Matplotlib'):
         webbrowser.open_new_tab(url_Matplotlib)
     if col2.button('seaborn graphs'):
@@ -74,6 +76,9 @@ def home_page():
         
         
         Please feel free to contact us with any issues, comments, or questions.
+       - **Left side of the application menu, you can find git hub link.**
+        Please drop feedbacks, suggestions. 
+        ### we are welcoming contributors 
 
        
         """,
