@@ -34,7 +34,6 @@ def get_data():
     return df
 
 
-
 def geo_location():
     st.markdown("---")
 
@@ -107,3 +106,4 @@ def geo_location():
             """
                 % e.reason
             )
+

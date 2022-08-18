@@ -1,4 +1,4 @@
-import streamlit
+
 import streamlit as st
 from PIL import Image
 import os
@@ -7,6 +7,14 @@ from ..scripts.data_pool import my_data
 from typing import List, Optional
 import markdown
 
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA, KernelPCA
+from sklearn.cluster import KMeans
+import plotly.graph_objs as go
+import plotly.express as px
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 directory = os.getcwd()
 
@@ -54,10 +62,18 @@ def get_data():
     global total_species
     total_species = df['species'].nunique()
 
-    # df = df.groupby(['species', 'year'], as_index=False)['growth_index'].mean()
-    # df = df.pivot(index='species', columns='year', values='growth_index')
-    # df = df.replace(np.nan, 0)
-    # df.columns = df.columns.astype(str)
+#@st.cache()
+def get_data_cluster():
+    df_cluster = my_data().get_data_for_cluster()
+
+    return df_cluster
+
+
+@st.cache()
+def get_data_province():
+    df_province = my_data().get_data_with_province()
+
+    return df_province
 
 
 def overview_page():
@@ -90,33 +106,172 @@ def overview_page():
 
         grid.cell("e", 3, 4, 1, 2).markdown("## TOTAL CONTRIBUTORS<br/><h1>"+str(total_projects)+"</h1>")
 
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
-
-    #col1.metric(label="Total Tress", value=total_trees, delta="1.2 °F")
-    #col1.metric(label="Total Trees", value= "{:,}".format(total_trees))
-    ##col5.metric(label='Total Instances', value= "{:,}".format(total_instances))
-
-    "====================================METRICS ROW 2==============================================================="
-    st.image(im2, caption='')
-
-    # left_col.image(im2, caption='')
-    # left_col.markdown("""## 4471""")
-    # left_col.markdown(" sites where observed and recorded for the data")
-    #
-    # ## Right Side
-    # right_col.markdown("""## 66 """)
-    # right_col.markdown("species where analysed for their growth patterns")
-
-## ADD CLUSTER
 
 
+    ''' =======================================CLUSTERING========================================================'''
+    df_cl = get_data_cluster()
+    df_cl.drop(["Cluster"], axis=1, inplace=True)
+
+    ##st.dataframe(df_cl)
+
+    le = LabelEncoder()
+    pca = PCA(n_components=30, whiten=True)
+
+    df_cl['species'] = le.fit_transform(df_cl['species'])
+    df_cl['state'] = le.fit_transform(df_cl['state'])
+
+    features = StandardScaler().fit_transform(df_cl.values)
+    features_pca = pca.fit_transform(features)
+
+    kmeans = KMeans(n_clusters=5,
+                    init='k-means++',
+                    random_state=0).fit(features_pca)
+
+    labels = kmeans.labels_
+    y_kmeans = kmeans.fit_predict(features)
+
+    # 3d scatter plot using plotly
+    Scene = dict(xaxis=dict(title='Period-->'), yaxis=dict(title='Growth Index--->'),
+                 zaxis=dict(title='Species_Site-->'))
+
+    cluster1 = go.Scatter3d(x=features_pca[labels == 0, 0],
+                            y=features_pca[labels == 0, 1],
+                            z=features_pca[labels == 0, 2],
+                            name='Cluster1',
+                            mode='markers',
+                            marker=dict(color='blue', size=10, line=dict(color='black', width=10))
+                            )
+
+    cluster2 = go.Scatter3d(x=features_pca[labels == 1, 0],
+                            y=features_pca[labels == 1, 1],
+                            z=features_pca[labels == 1, 2],
+                            name='Cluster2',
+                            mode='markers',
+                            marker=dict(color='orange', size=10, line=dict(color='black', width=10))
+                            )
+
+    cluster3 = go.Scatter3d(x=features_pca[labels == 2, 0],
+                            y=features_pca[labels == 2, 1],
+                            z=features_pca[labels == 2, 2],
+                            name='Cluster3',
+                            mode='markers',
+                            marker=dict(color='green', size=10, line=dict(color='black', width=10))
+                            )
+
+    cluster4 = go.Scatter3d(x=features_pca[labels == 3, 0],
+                            y=features_pca[labels == 3, 1],
+                            z=features_pca[labels == 3, 2],
+                            name='Cluster4',
+                            mode='markers',
+                            marker=dict(color='yellow', size=10, line=dict(color='black', width=10))
+                            )
+
+    cluster5 = go.Scatter3d(x=features_pca[labels == 4, 0],
+                            y=features_pca[labels == 4, 1],
+                            z=features_pca[labels == 4, 2],
+                            name='Cluster5',
+                            mode='markers',
+                            marker=dict(color='#D12B60', size=10, line=dict(color='black', width=10))
+                            )
+
+    layout = go.Layout(margin=dict(l=0, r=0), scene=Scene, height=1000, width=1000)
+    data = [cluster1, cluster2, cluster3, cluster4, cluster5]
 
 
+    fig = go.Figure(data=data, layout=layout)
+    fig.update_layout(legend={"title": "Clusters"})
+
+    # countplot to check the number of clusters and number of customers in each cluster
+    fig2 = plt.figure(figsize=(10, 4))
+    ax = sns.countplot(y_kmeans)
+
+    for p in ax.patches:
+        ax.annotate('{:.1f}'.format(p.get_height()), (p.get_x() + 0.1, p.get_height() + 50))
+
+    st.markdown("-------------------------")
+
+    col1 , col2 = st.columns(2)
+    with col1:
+        st.header("3D Clustering ")
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.header("Total instances per cluster ")
+        st.pyplot(fig2)
+
+    st.markdown("-------------------------")
 
 
+    ''' =======================================PROVINCE TABLE========================================================'''
+
+    df_prov = get_data_province()
 
 
+    # creating a group by State, Total trees, Avg Growth Index
+    df_group_province = df_prov.groupby("state").agg(
+        {"uid_tree": ["nunique"],
+         "uid_site": ["nunique"],
+         "species": ["nunique"],
+         "year": ["min", "max"],
+         "growth_index": ["mean", "min", "max"]}
+    ).reset_index()
 
+    # Fixing Columns name
+    df_group_province.columns = df_group_province.columns.map('_'.join)
+
+    # Rename Columns Names
+    df_group_province = df_group_province.rename(
+        columns={
+            "state_": "Province/Region",
+            "uid_tree_nunique": "Total trees",
+            "uid_site_nunique": "Total Sites",
+            "species_nunique": "Total Species",
+            "year_min": "Data From",
+            "year_max": "Data To",
+            "growth_index_min": "Min G.I.",
+            "growth_index_max": "Max G.I.",
+            "growth_index_mean": "Avg G.I."
+        })
+
+    # Creating a new column % Total Tree
+    df_group_province['% Total Tree'] = (df_group_province.groupby('Province/Region')['Total trees'].transform('mean') /
+                                         df_group_province['Total trees'].sum())
+
+    # Apply % format
+    df_group_province['% Total Tree'] = df_group_province['% Total Tree'].apply(lambda x: "{0:.2f}%".format(x * 100))
+
+    # Concatenating year columns
+    df_group_province['Year Range'] = df_group_province['Data From'].astype(str) + '-' + df_group_province[
+        'Data To'].astype(str)
+
+    # Removin Data From and Data To columns
+    df_group_province = df_group_province.drop(['Data From', 'Data To'], axis=1)
+
+    # Reorder columns
+    df_group_province = df_group_province[['Province/Region',
+                                           'Total trees',
+                                           '% Total Tree',
+                                           'Total Sites',
+                                           'Total Species',
+                                           'Year Range',
+                                           'Min G.I.',
+                                           'Max G.I.',
+                                           'Avg G.I.']]
+
+    # df_group_province
+    df_group_province.style.bar(subset=['Total trees'], align='left', color=['#d65f5f', '#5fba7d'])
+
+
+    fig_3 = px.bar(df_group_province, x="Avg G.I.", y="Province/Region", orientation='h',
+                 hover_data=["Max G.I.", "Min G.I.", "Year Range"],
+                 height=650, color='Province/Region')
+
+    col_1, col_2 = st.columns([2,2])
+
+    with col_1:
+        st.dataframe(data=df_group_province, height=600)
+    with col_2:
+        st.plotly_chart(fig_3, use_container_width=True)
 
 
 
