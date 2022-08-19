@@ -173,5 +173,5 @@ def geo_location():
 
     st.markdown('---------')
 
-    st.write("### Stadistic Table about the Growth Index By Province/Region")
+    st.write("### Statistic Table about the Growth Index By Province/Region")
     st.table(data=df_group_province)

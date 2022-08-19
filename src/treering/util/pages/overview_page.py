@@ -6,15 +6,18 @@ import numpy as np
 from ..scripts.data_pool import my_data
 from typing import List, Optional
 import markdown
-
+from urllib.error import URLError
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA, KernelPCA
 from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import plotly.graph_objs as go
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
+from collections import Counter
+import pandas as pd
 
 directory = os.getcwd()
 
@@ -63,12 +66,12 @@ def get_data():
     global total_species
     total_species = df['species'].nunique()
 
-#@st.cache()
-def get_data_cluster():
-    df_cluster = my_data().get_data_for_cluster()
 
-    return df_cluster
+@st.cache()
+def get_data_province():
+    df_province = my_data().get_data_with_province()
 
+    return df_province
 
 
 def overview_page():
@@ -100,95 +103,133 @@ def overview_page():
 
 
     ''' =======================================CLUSTERING========================================================'''
-    df_cl = get_data_cluster()
-    df_cl.drop(["Cluster"], axis=1, inplace=True)
+    df_prov = get_data_province()
 
-    ##st.dataframe(df_cl)
+    tr_df2 = df_prov.groupby(['uid_site', 'species', 'year', 'state'], as_index=False)[
+        ['growth_index']].mean()
 
+    tr_df3 = tr_df2.pivot_table(index=["uid_site", "species", "state"], columns="year", values="growth_index",
+                                fill_value=0)
+    tr_df3.reset_index(inplace=True)
+    tr_df3_copy = tr_df3.copy()
+
+    # Label Encoding
     le = LabelEncoder()
-    pca = PCA(n_components=30, whiten=True)
+    tr_df3['species'] = le.fit_transform(tr_df3['species'])
+    tr_df3['state'] = le.fit_transform(tr_df3['state'])
 
-    df_cl['species'] = le.fit_transform(df_cl['species'])
-    df_cl['state'] = le.fit_transform(df_cl['state'])
+    # Standar Scaler
+    features = StandardScaler().fit_transform(tr_df3.values)
 
-    features = StandardScaler().fit_transform(df_cl.values)
+    # PCA Principal componente Analysis
+    pca = PCA(n_components=5, whiten=True)
     features_pca = pca.fit_transform(features)
 
-    kmeans = KMeans(n_clusters=5,
+
+    kmeans = KMeans(n_clusters=6,
                     init='k-means++',
-                    random_state=0).fit(features_pca)
+                    random_state=42).fit(features_pca)
 
     labels = kmeans.labels_
+
+    tr_df3['Cluster'] = labels
+    tr_df3_copy['Cluster'] = labels
     y_kmeans = kmeans.fit_predict(features)
 
+    '''==============================Clustering Evaluation Metrics===================================================='''
+    se = silhouette_score(features_pca, labels)
+    ch = calinski_harabasz_score(features_pca, labels)
+    db = davies_bouldin_score(features_pca, labels)
+
+    '''==============================3D Scatter Plot=================================================================='''
     # 3d scatter plot using plotly
     Scene = dict(xaxis=dict(title='Period-->'), yaxis=dict(title='Growth Index--->'),
                  zaxis=dict(title='Species_Site-->'))
 
-    cluster1 = go.Scatter3d(x=features_pca[labels == 0, 0],
-                            y=features_pca[labels == 0, 1],
-                            z=features_pca[labels == 0, 2],
-                            name='Cluster1',
-                            mode='markers',
-                            marker=dict(color='blue', size=10, line=dict(color='black', width=10))
-                            )
+    u_labels = np.unique(labels)
+    data_trace = []
+    colors = ['blue', 'orange', 'green', 'yellow', 'red', 'magenta']
 
-    cluster2 = go.Scatter3d(x=features_pca[labels == 1, 0],
-                            y=features_pca[labels == 1, 1],
-                            z=features_pca[labels == 1, 2],
-                            name='Cluster2',
-                            mode='markers',
-                            marker=dict(color='orange', size=10, line=dict(color='black', width=10))
-                            )
+    for i in u_labels:
+        trace = go.Scatter3d(x=features_pca[labels == i, 0],
+                             y=features_pca[labels == i, 1],
+                             z=features_pca[labels == i, 2],
+                             name='Cluster ' + str(i),
+                             mode='markers',
+                             marker=dict(color=colors[i], size=10, line=dict(color='black', width=10)))
 
-    cluster3 = go.Scatter3d(x=features_pca[labels == 2, 0],
-                            y=features_pca[labels == 2, 1],
-                            z=features_pca[labels == 2, 2],
-                            name='Cluster3',
-                            mode='markers',
-                            marker=dict(color='green', size=10, line=dict(color='black', width=10))
-                            )
-
-    cluster4 = go.Scatter3d(x=features_pca[labels == 3, 0],
-                            y=features_pca[labels == 3, 1],
-                            z=features_pca[labels == 3, 2],
-                            name='Cluster4',
-                            mode='markers',
-                            marker=dict(color='yellow', size=10, line=dict(color='black', width=10))
-                            )
-
-    cluster5 = go.Scatter3d(x=features_pca[labels == 4, 0],
-                            y=features_pca[labels == 4, 1],
-                            z=features_pca[labels == 4, 2],
-                            name='Cluster5',
-                            mode='markers',
-                            marker=dict(color='#D12B60', size=10, line=dict(color='black', width=10))
-                            )
+        data_trace.append(trace)
 
     layout = go.Layout(margin=dict(l=0, r=0), scene=Scene, height=1000, width=1000)
-    data = [cluster1, cluster2, cluster3, cluster4, cluster5]
-
-
-    fig = go.Figure(data=data, layout=layout)
+    fig = go.Figure(data=data_trace, layout=layout)
     fig.update_layout(legend={"title": "Clusters"})
+    '''==============================================================================================================='''
 
     # countplot to check the number of clusters and number of customers in each cluster
-    fig2 = plt.figure(figsize=(10, 4))
-    ax = sns.countplot(y_kmeans)
+    cv_data = Counter(kmeans.labels_).items()
+    cv_df = pd.DataFrame.from_dict(cv_data)
+    cv_df = cv_df.rename(columns={0: "cluster", 1: "value"})
+    #cv_df.sort_values(by=['cluster'], ascending=False)
 
-    for p in ax.patches:
-        ax.annotate('{:.1f}'.format(p.get_height()), (p.get_x() + 0.1, p.get_height() + 50))
+    fig2 = px.bar(cv_df, x='value', y='cluster', color='cluster', orientation='h', height=500,
+                 text_auto=True)
 
+    fig2.update_traces(textfont_size=12, textangle=0, textposition="outside", cliponaxis=False)
+    fig.update_layout(yaxis={'categoryorder':'total descending'})
+
+    st.markdown("-------------------------")
+    col1, col2 = st.columns([3,2])
+
+    with col1:
+        st.header("3D Clustering ")
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.header("Total instances per cluster ")
+        st.plotly_chart(fig2)
+
+        st.write('## Evaluation metrics')
+        st.markdown('-------')
+        col2.metric('Silhouette Coefficient', round(se, 6))
+        col2.metric('Calinski Harabasz', round(ch, 4))
+        col2.metric('Daviews Bouldin', round(db, 4))
 
     st.markdown("-------------------------")
 
-    st.header("3D Clustering ")
-    st.plotly_chart(fig, use_container_width=True)
 
-    st.header("Total instances per cluster ")
-    st.pyplot(fig2)
-
-
+    st.write("### Filter Data by Cluster")
+    st.dataframe(tr_df3_copy)
+    # try:
+    #     tr_df3_copy = tr_df3_copy.set_index('Cluster')
+    #     clusters = st.multiselect(
+    #         "Choose cluster", list(tr_df3_copy.index.unique()),[0]
+    #     )
+    #     if not clusters:
+    #         st.error("Please select at least one specie.")
+    #     else:
+    #         data = tr_df3_copy.loc[clusters]
+    #         data = data.reset_index()
+    #         data = data.set_index('state')
+    #
+    #         provinces = st.multiselect(
+    #             "Choose Province/Region", list(data.index.unique()),
+    #             ['Alberta', 'Saskatchewan', 'British Columbia', 'Ontario', 'Northwest Territories', 'Yukon', 'Manitoba']
+    #         )
+    #         if not provinces:
+    #             st.error("Please select at least one province.")
+    #
+    #         else:
+    #             data = data.loc[provinces]
+    #             data = data.reset_index()
+    #             st.dataframe(data)
+    # except URLError as e:
+    #     st.error(
+    #         """
+    #         *This demo requires internet access.*
+    #         Connection error: %s
+    #         """
+    #             % e.reason
+    #         )
 
 
 
