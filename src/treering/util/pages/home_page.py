@@ -59,7 +59,6 @@ def home_page():
         - **Outlier Page:** In this page we can compare outliers among spices over the years, using table and box plot
         - **Growth Index By Spices Page:** find growth index of each spices over the years 
         - **Growth Index By Geo Location:** Points the trees in map based on geolocation
-        - **Growth Index By year:** Can calculate average progress of growth index early 
         - **Manage dataset :** We can upload and manage new datasets here!
 
 
