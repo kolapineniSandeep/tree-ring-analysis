@@ -12,6 +12,8 @@ def get_current_dir():
 
 def get_image_location():
     return os.path.join(get_current_dir(),"images")
+
+
 def home_page():
 
     im = Image.open(os.path.join(get_image_location(),"cover.jpg"))

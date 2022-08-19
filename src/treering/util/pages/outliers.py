@@ -41,7 +41,7 @@ def outliers():
             st.write("### Growth Index By Species",df)
            
             specie = st.multiselect(
-                "Choose species", list(df.index.unique()),['PICEGLA', 'ABIEBAL']
+                "Choose species", list(df.index.unique()), ['PICEGLA', 'ABIEBAL', 'ABIEAMA','PICEMAR','PINUSTR','PICERUB','ACERSAC']
             )
             
             if not specie:
@@ -54,7 +54,7 @@ def outliers():
                 
                 data = data.set_index('year')
                 yearz = st.multiselect(
-                "Choose year", list(data.index.unique()),['1955','1953']
+                "Choose year", list(data.index.unique()),['1955','1953','1954','1955','1956','1957','1958','1959','1960']
                 )
                 if not yearz:
                     st.error("Please select at least one year.")

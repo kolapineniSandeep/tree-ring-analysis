@@ -7,7 +7,6 @@ import os
 from util.pages.home_page import home_page
 from util.pages.overview_page import overview_page
 from util.pages.growth_index import growth_index
-from util.pages.growth_index_period import growth_index_period
 from util.pages.geo_location import geo_location
 from util.pages.manage_data import manage_data_page
 from util.pages.outliers import outliers
@@ -46,9 +45,8 @@ app = MultiApp()
 app.add_app("Home", home_page)
 app.add_app("Overview", overview_page)
 app.add_app("Outliers", outliers)
-app.add_app("Growth Index By Spices", growth_index)
+app.add_app("Growth Index By Species", growth_index)
 app.add_app("Growth Index By Geo Location", geo_location)
-app.add_app("Growth Index By year", growth_index_period)
 app.add_app("Manage Dataset", manage_data_page)
 
 
