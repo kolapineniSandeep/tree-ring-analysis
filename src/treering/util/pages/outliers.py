@@ -30,7 +30,7 @@ def outliers():
     st.markdown("#### Summary of the Tree Ring Analysis")
 
     st.markdown("""
-    -NEED TO IMPLEMENT
+    Compare outliers by spices over the years
     """)
     left_info_col, right_info_col = st.columns([3,1])
 

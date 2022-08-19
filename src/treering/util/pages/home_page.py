@@ -72,9 +72,9 @@ def home_page():
     left_info_col.markdown(
         f"""
         ### Team Members 
-        ### Sandeep Kolapineni C0827402
-        ### Samir Mendoza
-        ### Tom James
+        ### Sandeep Kolapineni
+        ### Samir Abisai Mendoza Lozano
+        ### Tom James Madolil
         
         
         Please feel free to contact us with any issues, comments, or questions.

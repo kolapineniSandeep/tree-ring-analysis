@@ -59,7 +59,7 @@ def geo_location():
     st.markdown("#### Summary of the Tree Ring Analysis")
 
     st.markdown("""
-    -NEED TO IMPLEMENT
+    Trees by Location
     """)
 
 
